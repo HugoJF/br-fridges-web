@@ -16,6 +16,8 @@ export function applyFilters(fridges: Fridge[], filters: FilterState): Fridge[] 
     if (fridge.capacity < filters.capacityRange[0] || fridge.capacity > filters.capacityRange[1]) return false
     // fridges with unknown price (null) pass the price filter — they're not excluded by price constraints
     if (fridge.price != null && (fridge.price < filters.priceRange[0] || fridge.price > filters.priceRange[1])) return false
+    // same null-pass-through for kWh
+    if (fridge.monthlyKwh != null && (fridge.monthlyKwh < filters.kwhRange[0] || fridge.monthlyKwh > filters.kwhRange[1])) return false
     if (filters.reversibleDoors !== null && fridge.reversibleDoors !== filters.reversibleDoors) return false
     if (filters.inverterCompressor !== null && fridge.inverterCompressor !== filters.inverterCompressor) return false
     return true

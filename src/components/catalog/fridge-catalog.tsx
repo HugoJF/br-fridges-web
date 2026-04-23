@@ -34,6 +34,7 @@ export default function FridgeCatalog() {
     types: [],
     capacityRange: [0, 9999],
     priceRange: [0, 999999],
+    kwhRange: [0, 999],
     reversibleDoors: null,
     inverterCompressor: null,
   })
@@ -73,10 +74,16 @@ export default function FridgeCatalog() {
     return [minOf(prices), maxOf(prices)]
   }, [fridges])
 
+  const kwhBounds = useMemo((): [number, number] => {
+    const vals = fridges.map((f) => f.monthlyKwh).filter((v): v is number => v != null)
+    if (!vals.length) return [0, 999]
+    return [minOf(vals), maxOf(vals)]
+  }, [fridges])
+
   useEffect(() => {
     if (fridges.length > 0 && !boundsInitialized.current) {
       boundsInitialized.current = true
-      setFilters((prev) => ({ ...prev, capacityRange: capacityBounds, priceRange: priceBounds }))
+      setFilters((prev) => ({ ...prev, capacityRange: capacityBounds, priceRange: priceBounds, kwhRange: kwhBounds }))
     }
   }, [fridges, capacityBounds, priceBounds])
 
@@ -153,6 +160,7 @@ export default function FridgeCatalog() {
         types={allTypes}
         capacityBounds={capacityBounds}
         priceBounds={priceBounds}
+        kwhBounds={kwhBounds}
       />
 
       <div className="flex-1 flex flex-col overflow-hidden min-w-0">
@@ -165,6 +173,7 @@ export default function FridgeCatalog() {
           totalCount={fridges.length}
           capacityBounds={capacityBounds}
           priceBounds={priceBounds}
+          kwhBounds={kwhBounds}
         />
         <div
           className="flex-1 overflow-auto"

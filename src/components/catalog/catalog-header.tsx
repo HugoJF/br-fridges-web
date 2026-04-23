@@ -12,6 +12,7 @@ interface CatalogHeaderProps {
   totalCount: number
   capacityBounds: [number, number]
   priceBounds: [number, number]
+  kwhBounds: [number, number]
 }
 
 function FilterChip({ label, onRemove }: { label: string; onRemove: () => void }) {
@@ -38,6 +39,7 @@ export default function CatalogHeader({
   totalCount,
   capacityBounds,
   priceBounds,
+  kwhBounds,
 }: CatalogHeaderProps) {
   const update = (partial: Partial<FilterState>) => onFiltersChange({ ...filters, ...partial })
 
@@ -72,6 +74,14 @@ export default function CatalogHeader({
       key: 'price',
       label: `R$${filters.priceRange[0].toLocaleString('pt-BR')}–R$${filters.priceRange[1].toLocaleString('pt-BR')}`,
       onRemove: () => update({ priceRange: priceBounds }),
+    })
+  }
+
+  if (filters.kwhRange[0] !== kwhBounds[0] || filters.kwhRange[1] !== kwhBounds[1]) {
+    chips.push({
+      key: 'kwh',
+      label: `${filters.kwhRange[0]}–${filters.kwhRange[1]} kWh/mês`,
+      onRemove: () => update({ kwhRange: kwhBounds }),
     })
   }
 

@@ -18,6 +18,7 @@ interface FilterSidebarProps {
   types: FridgeType[]
   capacityBounds: [number, number]
   priceBounds: [number, number]
+  kwhBounds: [number, number]
 }
 
 function SectionHeader({ label, count }: { label: string; count?: number }) {
@@ -134,6 +135,7 @@ export default function FilterSidebar({
   types,
   capacityBounds,
   priceBounds,
+  kwhBounds,
 }: FilterSidebarProps) {
   const [fitOpen, setFitOpen] = useState(false)
 
@@ -160,10 +162,11 @@ export default function FilterSidebar({
         filters.types.length > 0,
         filters.capacityRange[0] !== capacityBounds[0] || filters.capacityRange[1] !== capacityBounds[1],
         filters.priceRange[0] !== priceBounds[0] || filters.priceRange[1] !== priceBounds[1],
+        filters.kwhRange[0] !== kwhBounds[0] || filters.kwhRange[1] !== kwhBounds[1],
         filters.reversibleDoors !== null,
         filters.inverterCompressor !== null,
       ].filter(Boolean).length,
-    [filters, capacityBounds, priceBounds],
+    [filters, capacityBounds, priceBounds, kwhBounds],
   )
 
   const fitActive = Boolean(constraints.maxWidth || constraints.maxHeight || constraints.maxDepth)
@@ -186,6 +189,7 @@ export default function FilterSidebar({
                   types: [],
                   capacityRange: capacityBounds,
                   priceRange: priceBounds,
+                  kwhRange: kwhBounds,
                   reversibleDoors: null,
                   inverterCompressor: null,
                 })
@@ -303,6 +307,17 @@ export default function FilterSidebar({
           value={filters.priceRange}
           format={(v) => `R$${v.toLocaleString('pt-BR')}`}
           onChange={(v) => update({ priceRange: v })}
+        />
+
+        {/* kWh slider */}
+        <RangeSlider
+          label="Consumo (kWh/mês)"
+          min={kwhBounds[0]}
+          max={kwhBounds[1]}
+          step={1}
+          value={filters.kwhRange}
+          format={(v) => `${v} kWh`}
+          onChange={(v) => update({ kwhRange: v })}
         />
 
         {/* Divider */}

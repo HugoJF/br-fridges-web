@@ -49,6 +49,7 @@ export interface FilterState {
   types: FridgeType[]
   capacityRange: [number, number]
   priceRange: [number, number]
+  kwhRange: [number, number]
   reversibleDoors: boolean | null
   inverterCompressor: boolean | null
 }
