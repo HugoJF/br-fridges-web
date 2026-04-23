@@ -1,9 +1,10 @@
+import { ThemeProvider } from '@/components/theme-provider'
+import FridgeCatalog from '@/components/catalog/fridge-catalog'
+
 export default function App() {
   return (
-    <div className="bg-background min-h-screen font-sans antialiased">
-      <div className="flex items-center justify-center min-h-screen text-muted-foreground">
-        Components loading… (Stage 3)
-      </div>
-    </div>
+    <ThemeProvider defaultTheme="system" storageKey="br-fridges-theme">
+      <FridgeCatalog />
+    </ThemeProvider>
   )
 }
