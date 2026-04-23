@@ -268,7 +268,7 @@ export default function TableView({
                 {/* Price */}
                 <td className="px-3 py-2.5">
                   <span className="text-xs font-semibold tabular-nums text-foreground">
-                    R$ {fridge.price.toLocaleString('pt-BR')}
+                    {fridge.price != null ? `R$ ${fridge.price.toLocaleString('pt-BR')}` : '—'}
                   </span>
                 </td>
 

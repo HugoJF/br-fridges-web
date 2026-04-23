@@ -34,7 +34,7 @@ export interface Fridge {
   reversibleDoors: boolean | null // null = unknown
   inverterCompressor: boolean | null // null = unknown
   monthlyKwh: number | null // estimated monthly kWh — may be unknown
-  price: number // approximate BRL
+  price: number | null // approximate BRL — null = unknown
 }
 
 export interface SpaceConstraints {

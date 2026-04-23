@@ -46,10 +46,10 @@ export default function FridgeCatalog() {
           Math.min(...data.map((f) => f.capacity)),
           Math.max(...data.map((f) => f.capacity)),
         ]
-        const prBounds: [number, number] = [
-          Math.min(...data.map((f) => f.price)),
-          Math.max(...data.map((f) => f.price)),
-        ]
+        const prices = data.map((f) => f.price).filter((p): p is number => p != null)
+        const prBounds: [number, number] = prices.length
+          ? [Math.min(...prices), Math.max(...prices)]
+          : [0, 999999]
         setFilters((prev) => ({ ...prev, capacityRange: capBounds, priceRange: prBounds }))
       })
       .catch((e: unknown) => setError(String(e instanceof Error ? e.message : e)))
@@ -63,11 +63,10 @@ export default function FridgeCatalog() {
       fridges.length ? [Math.min(...fridges.map((f) => f.capacity)), Math.max(...fridges.map((f) => f.capacity))] : [0, 9999],
     [fridges],
   )
-  const priceBounds = useMemo(
-    (): [number, number] =>
-      fridges.length ? [Math.min(...fridges.map((f) => f.price)), Math.max(...fridges.map((f) => f.price))] : [0, 999999],
-    [fridges],
-  )
+  const priceBounds = useMemo((): [number, number] => {
+    const prices = fridges.map((f) => f.price).filter((p): p is number => p != null)
+    return prices.length ? [Math.min(...prices), Math.max(...prices)] : [0, 999999]
+  }, [fridges])
 
   const filteredFridges = useMemo(() => applyFilters(fridges, filters), [fridges, filters])
 

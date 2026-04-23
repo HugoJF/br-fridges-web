@@ -110,7 +110,7 @@ export default function CardView({
               </div>
               <div>
                 <div className="text-[10px] uppercase tracking-wide text-muted-foreground mb-0.5">Preço</div>
-                <div className="text-sm font-semibold text-primary">R$ {fridge.price.toLocaleString('pt-BR')}</div>
+                <div className="text-sm font-semibold text-primary">{fridge.price != null ? `R$ ${fridge.price.toLocaleString('pt-BR')}` : '—'}</div>
               </div>
               <div>
                 <div className="text-[10px] uppercase tracking-wide text-muted-foreground mb-0.5">W × H × D</div>
