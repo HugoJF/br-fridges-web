@@ -14,6 +14,7 @@ export function applyFilters(fridges: Fridge[], filters: FilterState): Fridge[] 
     if (filters.brands.length > 0 && !filters.brands.includes(fridge.brand)) return false
     if (filters.types.length > 0 && !filters.types.includes(fridge.type)) return false
     if (fridge.capacity < filters.capacityRange[0] || fridge.capacity > filters.capacityRange[1]) return false
+    // fridges with unknown price (null) pass the price filter — they're not excluded by price constraints
     if (fridge.price != null && (fridge.price < filters.priceRange[0] || fridge.price > filters.priceRange[1])) return false
     if (filters.reversibleDoors !== null && fridge.reversibleDoors !== filters.reversibleDoors) return false
     if (filters.inverterCompressor !== null && fridge.inverterCompressor !== filters.inverterCompressor) return false

@@ -1,5 +1,6 @@
 import { Ruler, RotateCcw, Zap, ChevronDown, ChevronUp } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
+import type { ReactNode } from 'react'
 import { Slider } from '@/components/ui/slider'
 import type { FilterState, FridgeType, SpaceConstraints } from '@/lib/fridge-types'
 import { FRIDGE_TYPE_LABELS } from '@/lib/fridge-types'
@@ -41,7 +42,7 @@ function TriStateToggle({
   label: string
   value: TriState
   onChange: (v: TriState) => void
-  icon?: React.ReactNode
+  icon?: ReactNode
 }) {
   const options: { label: string; value: TriState }[] = [
     { label: 'All', value: null },
@@ -152,14 +153,18 @@ export default function FilterSidebar({
     update({ types: next })
   }
 
-  const activeFilterCount = [
-    filters.brands.length > 0,
-    filters.types.length > 0,
-    filters.capacityRange[0] !== capacityBounds[0] || filters.capacityRange[1] !== capacityBounds[1],
-    filters.priceRange[0] !== priceBounds[0] || filters.priceRange[1] !== priceBounds[1],
-    filters.reversibleDoors !== null,
-    filters.inverterCompressor !== null,
-  ].filter(Boolean).length
+  const activeFilterCount = useMemo(
+    () =>
+      [
+        filters.brands.length > 0,
+        filters.types.length > 0,
+        filters.capacityRange[0] !== capacityBounds[0] || filters.capacityRange[1] !== capacityBounds[1],
+        filters.priceRange[0] !== priceBounds[0] || filters.priceRange[1] !== priceBounds[1],
+        filters.reversibleDoors !== null,
+        filters.inverterCompressor !== null,
+      ].filter(Boolean).length,
+    [filters, capacityBounds, priceBounds],
+  )
 
   const fitActive = Boolean(constraints.maxWidth || constraints.maxHeight || constraints.maxDepth)
 

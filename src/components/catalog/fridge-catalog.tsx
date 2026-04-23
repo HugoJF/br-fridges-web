@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo, useEffect, useRef } from 'react'
 import { fetchFridges } from '@/lib/data'
 import { applyFilters, applySort } from '@/lib/fridge-data'
 import type { Fridge, FilterState, FridgeType, SortField, SortDirection, SpaceConstraints } from '@/lib/fridge-types'
@@ -15,6 +15,13 @@ const DEFAULT_CONSTRAINTS: SpaceConstraints = {
 }
 
 const TRAY_HEIGHT = 288
+
+function minOf(arr: number[]): number {
+  return arr.reduce((a, b) => (b < a ? b : a), Infinity)
+}
+function maxOf(arr: number[]): number {
+  return arr.reduce((a, b) => (b > a ? b : a), -Infinity)
+}
 
 export default function FridgeCatalog() {
   const [fridges, setFridges] = useState<Fridge[]>([])
@@ -39,41 +46,48 @@ export default function FridgeCatalog() {
   const [constraints, setConstraints] = useState<SpaceConstraints>(DEFAULT_CONSTRAINTS)
 
   useEffect(() => {
-    fetchFridges()
-      .then((data) => {
-        setFridges(data)
-        const capBounds: [number, number] = [
-          Math.min(...data.map((f) => f.capacity)),
-          Math.max(...data.map((f) => f.capacity)),
-        ]
-        const prices = data.map((f) => f.price).filter((p): p is number => p != null)
-        const prBounds: [number, number] = prices.length
-          ? [Math.min(...prices), Math.max(...prices)]
-          : [0, 999999]
-        setFilters((prev) => ({ ...prev, capacityRange: capBounds, priceRange: prBounds }))
+    const controller = new AbortController()
+    fetchFridges(controller.signal)
+      .then(setFridges)
+      .catch((e: unknown) => {
+        if (e instanceof Error && e.name === 'AbortError') return
+        setError(String(e instanceof Error ? e.message : e))
       })
-      .catch((e: unknown) => setError(String(e instanceof Error ? e.message : e)))
       .finally(() => setLoading(false))
+    return () => controller.abort()
   }, [])
+
+  // Initialize filter ranges once data loads — useMemo bounds are the single source of truth
+  const boundsInitialized = useRef(false)
 
   const allBrands = useMemo(() => [...new Set(fridges.map((f) => f.brand))].sort(), [fridges])
   const allTypes = useMemo(() => [...new Set(fridges.map((f) => f.type))] as FridgeType[], [fridges])
-  const capacityBounds = useMemo(
-    (): [number, number] =>
-      fridges.length ? [Math.min(...fridges.map((f) => f.capacity)), Math.max(...fridges.map((f) => f.capacity))] : [0, 9999],
-    [fridges],
-  )
+  const capacityBounds = useMemo((): [number, number] => {
+    if (!fridges.length) return [0, 9999]
+    const caps = fridges.map((f) => f.capacity)
+    return [minOf(caps), maxOf(caps)]
+  }, [fridges])
   const priceBounds = useMemo((): [number, number] => {
     const prices = fridges.map((f) => f.price).filter((p): p is number => p != null)
-    return prices.length ? [Math.min(...prices), Math.max(...prices)] : [0, 999999]
+    if (!prices.length) return [0, 999999]
+    return [minOf(prices), maxOf(prices)]
   }, [fridges])
+
+  useEffect(() => {
+    if (fridges.length > 0 && !boundsInitialized.current) {
+      boundsInitialized.current = true
+      setFilters((prev) => ({ ...prev, capacityRange: capacityBounds, priceRange: priceBounds }))
+    }
+  }, [fridges, capacityBounds, priceBounds])
+
+  const eliminatedIdsSet = useMemo(() => new Set(eliminatedIds), [eliminatedIds])
 
   const filteredFridges = useMemo(() => applyFilters(fridges, filters), [fridges, filters])
 
   const displayFridges = useMemo(() => {
     if (showEliminated) return filteredFridges
-    return filteredFridges.filter((f) => !eliminatedIds.includes(f.id))
-  }, [filteredFridges, eliminatedIds, showEliminated])
+    return filteredFridges.filter((f) => !eliminatedIdsSet.has(f.id))
+  }, [filteredFridges, eliminatedIdsSet, showEliminated])
 
   const sortedFridges = useMemo(
     () => applySort(displayFridges, sortField, sortDir),
@@ -81,7 +95,7 @@ export default function FridgeCatalog() {
   )
 
   const compareFridges = useMemo(
-    () => compareIds.map((id) => fridges.find((f) => f.id === id)!).filter(Boolean),
+    () => compareIds.map((id) => fridges.find((f) => f.id === id)).filter((f): f is Fridge => f != null),
     [compareIds, fridges],
   )
 

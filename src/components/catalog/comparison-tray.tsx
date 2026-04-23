@@ -1,4 +1,5 @@
 
+import { Fragment } from 'react'
 import { X, GitCompareArrows } from 'lucide-react'
 import { type Fridge, FRIDGE_TYPE_LABELS, FRIDGE_TYPE_COLORS } from '@/lib/fridge-types'
 import { cn } from '@/lib/utils'
@@ -73,7 +74,7 @@ const SPEC_ROWS: SpecRow[] = [
   {
     label: 'Preço',
     getValue: (f) => f.price,
-    format: (v) => `R$ ${Number(v).toLocaleString('pt-BR')}`,
+    format: (v) => v != null ? `R$ ${Number(v).toLocaleString('pt-BR')}` : '—',
     bestIs: 'lower',
   },
 ]
@@ -147,10 +148,8 @@ export default function ComparisonTray({ fridges, onRemove, onClear }: Compariso
           {SPEC_ROWS.map((row) => {
             const bestIdx = getBestIndex(fridges, row)
             return (
-              <>
-                <div
-                  key={`label-${row.label}`}
-                  className="flex items-center px-3 py-1.5 border-r border-b border-border bg-muted/10"
+              <Fragment key={row.label}>
+                <div className="flex items-center px-3 py-1.5 border-r border-b border-border bg-muted/10"
                 >
                   <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium whitespace-nowrap">
                     {row.label}
@@ -186,7 +185,7 @@ export default function ComparisonTray({ fridges, onRemove, onClear }: Compariso
                     </div>
                   )
                 })}
-              </>
+              </Fragment>
             )
           })}
         </div>

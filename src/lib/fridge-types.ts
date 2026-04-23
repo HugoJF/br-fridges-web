@@ -53,16 +53,10 @@ export interface FilterState {
   inverterCompressor: boolean | null
 }
 
-export type SortField =
-  | 'brand'
-  | 'model'
-  | 'capacity'
-  | 'price'
-  | 'width'
-  | 'height'
-  | 'depth'
-  | 'depthWithDoors'
-  | 'monthlyKwh'
+export type SortField = Extract<
+  keyof Fridge,
+  'brand' | 'model' | 'capacity' | 'price' | 'width' | 'height' | 'depth' | 'depthWithDoors' | 'monthlyKwh'
+>
 
 export type SortDirection = 'asc' | 'desc'
 
